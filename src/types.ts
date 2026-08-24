@@ -20,6 +20,7 @@ export interface Env {
   OPENROUTER_API_KEY: string;
   TELEGRAM_BOT_TOKEN: string;
   TELEGRAM_CHAT_ID: string;
+  ADMIN_KEY: string; // Required secret to authorize manual /run HTTP requests
 
   // Optional Vars
   OPENROUTER_MODEL?: string;

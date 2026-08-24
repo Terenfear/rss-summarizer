@@ -2,16 +2,15 @@ name = "rss-summarizer"
 main = "src/index.ts"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
+workers_dev = true
 
 [triggers]
 crons = ["0 */4 * * *"] # Every 4 hours
 
 # KV namespace for storing seen item IDs
-# Create one with `npx wrangler kv namespace create RSS_CACHE` and update the ID below
 [[kv_namespaces]]
 binding = "RSS_CACHE"
-id = "YOUR_KV_NAMESPACE_ID"
-preview_id = "YOUR_PREVIEW_KV_NAMESPACE_ID"
+id = "549a8493533e40d3829737d431646c0d"
 
 [vars]
 OPENROUTER_MODEL = "deepseek/deepseek-chat"
@@ -22,3 +21,4 @@ MAX_ITEMS_PER_FEED = "15"
 # - OPENROUTER_API_KEY
 # - TELEGRAM_BOT_TOKEN
 # - TELEGRAM_CHAT_ID
+# - ADMIN_KEY (required for manual /run trigger via Authorization header)

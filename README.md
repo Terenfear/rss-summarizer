@@ -102,6 +102,7 @@ Edit `feeds.json` to include any subreddits or RSS/Atom feeds:
    OPENROUTER_API_KEY=sk-or-v1-...
    TELEGRAM_BOT_TOKEN=123456:ABC-DEF...
    TELEGRAM_CHAT_ID=your_chat_id
+   ADMIN_KEY=your_local_admin_key
    ```
 
 3. **Start the local development server:**
@@ -110,9 +111,8 @@ Edit `feeds.json` to include any subreddits or RSS/Atom feeds:
    ```
 
 4. **Trigger a test digest run:**
-   Open a browser or run:
    ```bash
-   curl http://localhost:8787/run
+   curl -H "Authorization: Bearer your_local_admin_key" http://localhost:8787/run
    ```
    You should see JSON output describing the processed feeds and receive a Telegram message if unread items exist.
 
@@ -148,6 +148,7 @@ npm run typecheck
    npx wrangler secret put OPENROUTER_API_KEY
    npx wrangler secret put TELEGRAM_BOT_TOKEN
    npx wrangler secret put TELEGRAM_CHAT_ID
+   npx wrangler secret put ADMIN_KEY
    ```
 
 3. **Deploy the Worker:**
@@ -164,6 +165,7 @@ npm run typecheck
 | `OPENROUTER_API_KEY` | Secret (`wrangler secret put`) | `sk-or-...` | OpenRouter authentication key |
 | `TELEGRAM_BOT_TOKEN` | Secret (`wrangler secret put`) | `123456:ABC...` | Telegram bot token from @BotFather |
 | `TELEGRAM_CHAT_ID` | Secret / Var | `123456789` | Target Telegram chat or channel ID |
+| `ADMIN_KEY` | Secret (`wrangler secret put`) | `my-secret-token` | Required to authorize manual `/run` HTTP requests |
 | `OPENROUTER_MODEL` | `wrangler.toml` (`[vars]`) | `deepseek/deepseek-chat` | LLM model identifier on OpenRouter |
 | `USER_AGENT` | `wrangler.toml` (`[vars]`) | `rss-summarizer:v1.0...` | Custom User-Agent (crucial for Reddit RSS) |
 | `MAX_ITEMS_PER_FEED` | `wrangler.toml` (`[vars]`) | `15` | Max unread items to summarize per feed run |

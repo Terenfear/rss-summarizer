@@ -17,7 +17,7 @@ export function getFeedsConfig(env?: Env): FeedConfig[] {
   if (env?.FEEDS_CONFIG) {
     try {
       const parsed = JSON.parse(env.FEEDS_CONFIG);
-      if (Array.isArray(parsed) && parsed.length > 0) {
+      if (Array.isArray(parsed)) {
         return parsed;
       }
     } catch (err) {

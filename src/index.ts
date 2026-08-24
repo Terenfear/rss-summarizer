@@ -83,6 +83,27 @@ export async function runDigest(env: Env): Promise<{ summary: string; results: D
   return { summary, results };
 }
 
+function isAuthorized(request: Request, env: Env): boolean {
+  if (!env.ADMIN_KEY) {
+    return false;
+  }
+
+  // 1. Check Authorization header: Bearer <key>
+  const authHeader = request.headers.get('Authorization');
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.slice(7).trim();
+    if (token === env.ADMIN_KEY) return true;
+  }
+
+  // 2. Check X-Admin-Key header
+  const customHeader = request.headers.get('X-Admin-Key');
+  if (customHeader && customHeader.trim() === env.ADMIN_KEY) {
+    return true;
+  }
+
+  return false;
+}
+
 export default {
   // Cloudflare Cron Trigger Handler
   async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext): Promise<void> {
@@ -97,13 +118,23 @@ export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
 
-    if (url.pathname === '/health') {
-      return new Response(JSON.stringify({ status: 'ok', timestamp: new Date().toISOString() }), {
+    if (url.pathname === '/health' || url.pathname === '/') {
+      return new Response(JSON.stringify({ status: 'ok', service: 'rss-summarizer', timestamp: new Date().toISOString() }), {
         headers: { 'Content-Type': 'application/json' },
       });
     }
 
-    if (url.pathname === '/run' || url.pathname === '/') {
+    if (url.pathname === '/run') {
+      if (!isAuthorized(request, env)) {
+        return new Response(
+          JSON.stringify({ error: 'Unauthorized. Provide valid Authorization: Bearer <ADMIN_KEY> header.' }),
+          {
+            status: 401,
+            headers: { 'Content-Type': 'application/json' },
+          }
+        );
+      }
+
       try {
         const result = await runDigest(env);
         return new Response(JSON.stringify(result, null, 2), {

@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+dist/
+.wrangler/
+.mf/
+
+# Local configuration and uncommitted files
+feeds.json
+PLAN.md
+plan.md
+.dev.vars
+.env
+*.local
+
+# OS & Editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

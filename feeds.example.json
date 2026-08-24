@@ -1,0 +1,17 @@
+[
+  {
+    "id": "r-localllama",
+    "name": "r/LocalLLaMA",
+    "url": "https://www.reddit.com/r/LocalLLaMA/hot.rss"
+  },
+  {
+    "id": "r-artificial",
+    "name": "r/ArtificialInteligence",
+    "url": "https://www.reddit.com/r/ArtificialInteligence/hot.rss"
+  },
+  {
+    "id": "hn-frontpage",
+    "name": "Hacker News",
+    "url": "https://news.ycombinator.com/rss"
+  }
+]

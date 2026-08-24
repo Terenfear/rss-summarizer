@@ -100,7 +100,7 @@ export async function fetchFeed(
 ): Promise<RawFeedItem[]> {
   const isReddit = url.includes('reddit.com');
   const defaultUA = isReddit
-    ? 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 (RSS Summarizer Digest)'
+    ? 'web:rss-summarizer:v1.0 (by /u/rss-summarizer-bot)'
     : 'rss-summarizer:v1.0 (feed reader)';
 
   const headers: Record<string, string> = {
@@ -113,17 +113,25 @@ export async function fetchFeed(
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
-      if (attempt > 0) {
-        // Wait 2s on 1st retry, 4s on 2nd retry
-        await new Promise((resolve) => setTimeout(resolve, attempt * 2000));
-      }
-
       const response = await fetch(url, {
         method: 'GET',
         headers,
       });
 
       if (response.status === 429 || response.status >= 500) {
+        let retryAfterMs = (attempt + 1) * 3000;
+        const retryAfterHeader = response.headers.get('Retry-After');
+        if (retryAfterHeader) {
+          const parsedSeconds = parseInt(retryAfterHeader, 10);
+          if (!Number.isNaN(parsedSeconds) && parsedSeconds > 0) {
+            retryAfterMs = Math.min(parsedSeconds * 1000, 15000);
+          }
+        }
+        // If we have retries left, wait with backoff
+        if (attempt < maxRetries) {
+          await new Promise((resolve) => setTimeout(resolve, retryAfterMs));
+          continue;
+        }
         throw new Error(`Feed HTTP ${response.status} ${response.statusText}`);
       }
 
@@ -138,6 +146,9 @@ export async function fetchFeed(
       // Don't retry client errors other than 429
       if (lastError.message.includes('HTTP 404') || lastError.message.includes('HTTP 403')) {
         break;
+      }
+      if (attempt < maxRetries && !lastError.message.includes('HTTP 429')) {
+        await new Promise((resolve) => setTimeout(resolve, (attempt + 1) * 2000));
       }
     }
   }

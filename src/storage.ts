@@ -40,3 +40,56 @@ export async function markIdsSeen(
     console.error(`Failed to update seen IDs for feed ${feedId}:`, err);
   }
 }
+
+export async function getLastFetchedTime(kv: KVNamespace, feedId: string): Promise<number | null> {
+  if (!kv) return null;
+
+  try {
+    const raw = await kv.get(`last_fetched:${feedId}`, 'text');
+    if (raw) {
+      const timestamp = parseInt(raw, 10);
+      return Number.isNaN(timestamp) ? null : timestamp;
+    }
+  } catch (err) {
+    console.warn(`Failed to read last fetched time for feed ${feedId}:`, err);
+  }
+
+  return null;
+}
+
+export async function setLastFetchedTime(
+  kv: KVNamespace,
+  feedId: string,
+  timestamp: number = Date.now()
+): Promise<void> {
+  if (!kv) return;
+
+  try {
+    await kv.put(`last_fetched:${feedId}`, String(timestamp), {
+      expirationTtl: DEFAULT_TTL_SECONDS,
+    });
+  } catch (err) {
+    console.error(`Failed to update last fetched time for feed ${feedId}:`, err);
+  }
+}
+
+export async function getLastProcessedFeedId(kv: KVNamespace): Promise<string | null> {
+  if (!kv) return null;
+
+  try {
+    return await kv.get('cursor:last_feed_id', 'text');
+  } catch (err) {
+    console.warn('Failed to read last processed feed cursor:', err);
+    return null;
+  }
+}
+
+export async function setLastProcessedFeedId(kv: KVNamespace, feedId: string): Promise<void> {
+  if (!kv) return;
+
+  try {
+    await kv.put('cursor:last_feed_id', feedId);
+  } catch (err) {
+    console.error('Failed to update last processed feed cursor:', err);
+  }
+}

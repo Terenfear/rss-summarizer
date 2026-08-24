@@ -5,7 +5,7 @@ compatibility_flags = ["nodejs_compat"]
 workers_dev = true
 
 [triggers]
-crons = ["0 */4 * * *"] # Every 4 hours
+crons = ["*/30 * * * *"] # Every 30 minutes
 
 # KV namespace for storing seen item IDs
 [[kv_namespaces]]
@@ -14,8 +14,9 @@ id = "549a8493533e40d3829737d431646c0d"
 
 [vars]
 OPENROUTER_MODEL = "deepseek/deepseek-chat"
-USER_AGENT = "rss-summarizer:v1.0 (by /u/rss-summarizer-bot)"
-MAX_ITEMS_PER_FEED = "15"
+USER_AGENT = "web:rss-summarizer:v1.0 (by /u/rss-summarizer-bot)"
+FEEDS_PER_RUN = "1"
+MIN_FEED_INTERVAL_HOURS = "4"
 
 # Required Secrets to set via `npx wrangler secret put <NAME>`:
 # - OPENROUTER_API_KEY

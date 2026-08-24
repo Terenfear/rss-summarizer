@@ -25,8 +25,9 @@ export interface Env {
   // Optional Vars
   OPENROUTER_MODEL?: string;
   USER_AGENT?: string;
-  MAX_ITEMS_PER_FEED?: string;
   FEEDS_CONFIG?: string; // Optional JSON string override for feeds
+  FEEDS_PER_RUN?: string; // Number of feeds to process per cron run (default: 1)
+  MIN_FEED_INTERVAL_HOURS?: string; // Minimum hours between fetching the same feed (default: 4)
 }
 
 export interface DigestResult {
@@ -35,5 +36,7 @@ export interface DigestResult {
   totalFetched: number;
   unreadCount: number;
   messageSent: boolean;
+  skipped?: boolean;
+  skipReason?: string;
   error?: string;
 }

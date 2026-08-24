@@ -168,7 +168,6 @@ npm run typecheck
 | `ADMIN_KEY` | Secret (`wrangler secret put`) | `my-secret-token` | Required to authorize manual `/run` HTTP requests |
 | `OPENROUTER_MODEL` | `wrangler.toml` (`[vars]`) | `deepseek/deepseek-chat` | LLM model identifier on OpenRouter |
 | `USER_AGENT` | `wrangler.toml` (`[vars]`) | `rss-summarizer:v1.0...` | Custom User-Agent (crucial for Reddit RSS) |
-| `MAX_ITEMS_PER_FEED` | `wrangler.toml` (`[vars]`) | `15` | Max unread items to summarize per feed run |
 | `FEEDS_CONFIG` | Secret / Var (Optional) | `[{"id":"...","name":"...","url":"..."}]` | JSON string override for feed list |
 
 ---

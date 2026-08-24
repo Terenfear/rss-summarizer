@@ -1,5 +1,12 @@
 import { describe, expect, it, vi } from 'vitest';
-import { getSeenIds, markIdsSeen } from '../src/storage.js';
+import {
+  getLastFetchedTime,
+  getLastProcessedFeedId,
+  getSeenIds,
+  markIdsSeen,
+  setLastFetchedTime,
+  setLastProcessedFeedId,
+} from '../src/storage.js';
 
 describe('Storage Helpers', () => {
   it('reads seen IDs from KV namespace', async () => {
@@ -28,5 +35,31 @@ describe('Storage Helpers', () => {
       JSON.stringify(['id1', 'id2', 'id3']),
       expect.objectContaining({ expirationTtl: 30 * 24 * 60 * 60 })
     );
+  });
+
+  it('reads and writes last fetched timestamp', async () => {
+    const mockKv = {
+      get: vi.fn().mockResolvedValue('1700000000000'),
+      put: vi.fn().mockResolvedValue(undefined),
+    } as unknown as KVNamespace;
+
+    const time = await getLastFetchedTime(mockKv, 'feed-1');
+    expect(time).toBe(1700000000000);
+
+    await setLastFetchedTime(mockKv, 'feed-1', 1700000050000);
+    expect(mockKv.put).toHaveBeenCalledWith('last_fetched:feed-1', '1700000050000', expect.any(Object));
+  });
+
+  it('reads and writes round robin feed cursor', async () => {
+    const mockKv = {
+      get: vi.fn().mockResolvedValue('feed-alpha'),
+      put: vi.fn().mockResolvedValue(undefined),
+    } as unknown as KVNamespace;
+
+    const lastId = await getLastProcessedFeedId(mockKv);
+    expect(lastId).toBe('feed-alpha');
+
+    await setLastProcessedFeedId(mockKv, 'feed-beta');
+    expect(mockKv.put).toHaveBeenCalledWith('cursor:last_feed_id', 'feed-beta');
   });
 });

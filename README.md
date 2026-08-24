@@ -1,3 +1,5 @@
+# Yep, that's vibecoded slop. Just needed something ASAP to get off Reddit.
+
 # RSS Summarizer (Cloudflare Worker + OpenRouter + Telegram)
 
 A lightweight, serverless RSS/Atom & Subreddit digest engine running on Cloudflare Workers. It periodically fetches your favorite feeds, deduplicates seen posts using Cloudflare KV, generates concise, detached 1–2 sentence factual summaries via OpenRouter, and delivers formatted digests directly to your Telegram chat or channel.

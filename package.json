@@ -1,6 +1,6 @@
 {
   "name": "rss-summarizer",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Cloudflare Worker that summarizes RSS and Subreddit feeds with OpenRouter and delivers digests to Telegram",
   "main": "src/index.ts",
   "type": "module",

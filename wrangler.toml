@@ -23,3 +23,20 @@ MIN_FEED_INTERVAL_HOURS = "4"
 # - TELEGRAM_BOT_TOKEN
 # - TELEGRAM_CHAT_ID
 # - ADMIN_KEY (required for manual /run trigger via Authorization header)
+
+[observability]
+enabled = false
+head_sampling_rate = 1
+redact_query_string = false
+
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+persist = true
+invocation_logs = true
+
+[observability.traces]
+enabled = false
+persist = true
+head_sampling_rate = 1
+

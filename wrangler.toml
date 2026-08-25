@@ -5,7 +5,7 @@ compatibility_flags = ["nodejs_compat"]
 workers_dev = true
 
 [triggers]
-crons = ["*/30 * * * *"] # Every 30 minutes
+crons = ["*/15 * * * *"] # Every 15 minutes
 
 # KV namespace for storing seen item IDs
 [[kv_namespaces]]
@@ -14,9 +14,12 @@ id = "549a8493533e40d3829737d431646c0d"
 
 [vars]
 OPENROUTER_MODEL = "deepseek/deepseek-chat"
-USER_AGENT = "web:rss-summarizer:v1.0 (by /u/rss-summarizer-bot)"
 FEEDS_PER_RUN = "1"
 MIN_FEED_INTERVAL_HOURS = "4"
+
+# Optional config:
+# REDDIT_USERNAME = "your_reddit_username" # Or set via `npx wrangler secret put REDDIT_USERNAME`
+# USER_AGENT = "custom-user-agent-override"
 
 # Required Secrets to set via `npx wrangler secret put <NAME>`:
 # - OPENROUTER_API_KEY

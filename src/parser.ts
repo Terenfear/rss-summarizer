@@ -1,5 +1,5 @@
 import { XMLParser } from 'fast-xml-parser';
-import type { RawFeedItem } from './types.js';
+import type { Env, RawFeedItem } from './types.js';
 
 const xmlParser = new XMLParser({
   ignoreAttributes: false,
@@ -93,20 +93,32 @@ export function parseFeedXml(xmlContent: string): RawFeedItem[] {
   return items;
 }
 
+export function getUserAgent(url: string, env?: Partial<Env>): string {
+  const isReddit = url.includes('reddit.com');
+
+  if (isReddit && env?.REDDIT_USERNAME) {
+    const cleanUser = env.REDDIT_USERNAME.replace(/^\/?u\//, '').trim();
+    return `web:rss-summarizer:v2.0 (by /u/${cleanUser})`;
+  }
+
+  if (env?.USER_AGENT) {
+    return env.USER_AGENT;
+  }
+
+  return isReddit
+    ? 'web:rss-summarizer:v2.0 (by /u/rss-summarizer-bot)'
+    : 'rss-summarizer:v2.0 (feed reader)';
+}
+
 export async function fetchFeed(
   url: string,
   userAgent?: string,
   maxRetries = 2
 ): Promise<RawFeedItem[]> {
-  const isReddit = url.includes('reddit.com');
-  const defaultUA = isReddit
-    ? 'web:rss-summarizer:v1.0 (by /u/rss-summarizer-bot)'
-    : 'rss-summarizer:v1.0 (feed reader)';
-
   const headers: Record<string, string> = {
     'Accept': 'application/atom+xml, application/rss+xml, text/xml, application/xml, text/html;q=0.9, */*;q=0.8',
     'Accept-Language': 'en-US,en;q=0.9',
-    'User-Agent': userAgent || defaultUA,
+    'User-Agent': userAgent || getUserAgent(url),
   };
 
   let lastError: Error | null = null;

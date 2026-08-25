@@ -1,5 +1,5 @@
 import { getFeedsConfig } from './config.js';
-import { fetchFeed } from './parser.js';
+import { fetchFeed, getUserAgent } from './parser.js';
 import {
   getLastFetchedTime,
   getLastProcessedFeedId,
@@ -27,13 +27,14 @@ export async function processFeed(feed: FeedConfig, env: Env): Promise<DigestRes
     messageSent: false,
   };
 
-  // Record fetch time immediately to prevent stampedes and enforce cooldown
-  await setLastFetchedTime(env.RSS_CACHE, feed.id, Date.now());
-
   try {
     // 1. Fetch feed items
-    const items = await fetchFeed(feed.url, env.USER_AGENT);
+    const userAgent = getUserAgent(feed.url, env);
+    const items = await fetchFeed(feed.url, userAgent);
     result.totalFetched = items.length;
+
+    // Record fetch time only after successful fetch to enforce cooldown on success
+    await setLastFetchedTime(env.RSS_CACHE, feed.id, Date.now());
 
     if (items.length === 0) {
       return result;

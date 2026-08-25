@@ -251,4 +251,43 @@ describe('Round-Robin and 4-Hour Cooldown Logic', () => {
     const savedSeen = JSON.parse(kvStore['seen:feed-1']);
     expect(savedSeen.length).toBe(25);
   });
+
+  it('does not set last_fetched cooldown when fetch fails with error (e.g. 404 or 429)', async () => {
+    const kvStore: Record<string, string> = {
+      'cursor:last_feed_id': 'feed-3',
+    };
+    const mockKv = {
+      get: vi.fn().mockImplementation((key: string) => Promise.resolve(kvStore[key] ?? null)),
+      put: vi.fn().mockImplementation((key: string, val: string) => {
+        kvStore[key] = val;
+        return Promise.resolve();
+      }),
+    } as unknown as KVNamespace;
+
+    const env = {
+      FEEDS_CONFIG: JSON.stringify(feeds),
+      RSS_CACHE: mockKv,
+      MIN_FEED_INTERVAL_HOURS: '4',
+      FEEDS_PER_RUN: '1',
+    } as unknown as Env;
+
+    // Mock fetch returning HTTP 404 (non-retrying client error)
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 404,
+      statusText: 'Not Found',
+      headers: new Headers(),
+    });
+
+    const result = await runDigest(env);
+    expect(result.results.length).toBe(1);
+    expect(result.results[0].feedId).toBe('feed-1');
+    expect(result.results[0].error).toBeDefined();
+
+    // Cursor should have advanced to avoid blocking next feeds
+    expect(kvStore['cursor:last_feed_id']).toBe('feed-1');
+
+    // last_fetched must NOT be recorded on failure
+    expect(kvStore['last_fetched:feed-1']).toBeUndefined();
+  });
 });

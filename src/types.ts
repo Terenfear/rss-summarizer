@@ -21,6 +21,7 @@ export interface Env {
   TELEGRAM_BOT_TOKEN: string;
   TELEGRAM_CHAT_ID: string;
   ADMIN_KEY: string; // Required secret to authorize manual /run HTTP requests
+  REDDIT_USERNAME?: string; // Optional Reddit username for User-Agent (by /u/<username>)
 
   // Optional Vars
   OPENROUTER_MODEL?: string;

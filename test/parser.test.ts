@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseFeedXml } from '../src/parser.js';
+import { getUserAgent, parseFeedXml } from '../src/parser.js';
 
 describe('Feed Parser', () => {
   it('parses RSS 2.0 XML correctly', () => {
@@ -83,5 +83,34 @@ describe('Feed Parser', () => {
   it('handles empty or malformed XML gracefully', () => {
     expect(parseFeedXml('')).toEqual([]);
     expect(parseFeedXml('<invalid></invalid>')).toEqual([]);
+  });
+
+  describe('getUserAgent', () => {
+    it('uses REDDIT_USERNAME when fetching Reddit feeds', () => {
+      const ua1 = getUserAgent('https://www.reddit.com/r/LocalLLaMA.rss', {
+        REDDIT_USERNAME: 'terenfear',
+      });
+      expect(ua1).toBe('web:rss-summarizer:v2.0 (by /u/terenfear)');
+
+      // Handles /u/ prefix gracefully
+      const ua2 = getUserAgent('https://www.reddit.com/r/LocalLLaMA.rss', {
+        REDDIT_USERNAME: '/u/terenfear',
+      });
+      expect(ua2).toBe('web:rss-summarizer:v2.0 (by /u/terenfear)');
+    });
+
+    it('falls back to custom USER_AGENT if specified', () => {
+      const ua = getUserAgent('https://example.com/feed.xml', {
+        USER_AGENT: 'custom-bot/1.0',
+      });
+      expect(ua).toBe('custom-bot/1.0');
+    });
+
+    it('returns default Reddit or general user agent when nothing is configured', () => {
+      expect(getUserAgent('https://www.reddit.com/r/news.rss')).toBe(
+        'web:rss-summarizer:v2.0 (by /u/rss-summarizer-bot)'
+      );
+      expect(getUserAgent('https://example.com/rss')).toBe('rss-summarizer:v2.0 (feed reader)');
+    });
   });
 });
